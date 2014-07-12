@@ -30,7 +30,7 @@ module Lita
           user = Lita::User.fuzzy_find(json["mention_name"])
           return if user.metadata.has_key?("timezone")
           log.info "Synchronizing #{user.name}"
-          payload.merge! fetch_user(json["id"])
+          json.merge! fetch_user(json["id"])
           log.debug user.metadata.merge! json
           log.info  user.save
         end
