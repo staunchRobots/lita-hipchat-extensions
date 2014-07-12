@@ -1,17 +1,35 @@
 module Lita
   module Handlers
     class HipchatExtensions < Handler
+      # Base class for all extension handlers
       class Base < Handler
-        # Default Configuration
-        def self.default_config(config)
-          config.token  = "qRj4AYVzKb5yWcM3TyNSUbpE7CQrTTGwqdyZkLPF"
+
+        # Class Methods
+        class << self
+          # Custom name so all handlers share the same redis namespace
+          def name
+            "hipchat-extensions"
+          end
+
+          # @return [String] the auth token for accessing Hipchat's API
+          def token
+            config.token
+          end
         end
 
-        # @return [String] The auth token for accessing Hipchat's API
-        def self.token
-          config.token
+        # Instance Methods
+
+        # @see Base.token
+        def token
+          self.class.token
         end
-      end
+
+        # @return [Hipchat] the hipchat client used to make calls to the API
+        def client
+          @client ||= ::Hipchat.new(token)
+        end
+
+      end # /Base
     end
   end
 end

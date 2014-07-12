@@ -1,4 +1,4 @@
-# Class responsible for handling calls to the Hipchat API
+# Class responsible for handling calls to the Hipchat V2 API
 class Hipchat
   include HTTParty
   # Base url is Hipchat V2 API
