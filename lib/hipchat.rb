@@ -6,7 +6,7 @@ class Hipchat
   # Use a logger for the requests 
   logger ::Logger.new("./hipchat.log"), :debug, :apache
   # TODO: May want to turn this off before releasing
-  debug_output $stderr
+  # debug_output $stderr
   # @return [String] the authentication token for making calls
   attr_accessor :token
 

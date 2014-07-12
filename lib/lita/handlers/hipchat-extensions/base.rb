@@ -24,8 +24,16 @@ module Lita
           @client ||= ::Hipchat.new(token)
         end
 
+        def lita_users
+          @users ||= fetch_users.map { |u| Lita::User.fuzzy_find u["mention_name"] }
+        end
+
         def fetch_users
           @users ||= client.users
+        end
+
+        def fetch_users_in_room
+
         end
 
         def fetch_user(id)
