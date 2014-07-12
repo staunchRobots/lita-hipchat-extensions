@@ -12,9 +12,6 @@ describe Lita::Handlers::HipchatExtensions::Timezone, lita_handler: true do
   end
 
   describe "#user_timezones" do
-    it "responds with a group of unique timezones" do
-      binding.pry
-      expect(subject.user_timezones).to be_a Array
-    end
+    pending
   end
 end
