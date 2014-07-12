@@ -10,7 +10,6 @@ module Lita
 
         # TODO: Document me
         def show(response)
-          binding.pry
           mention_name = response.args[1].gsub "@", ""
           response.reply t("fetcher.show.usage") and return unless mention_name
           user         = Lita::User.fuzzy_find mention_name
