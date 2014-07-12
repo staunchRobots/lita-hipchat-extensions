@@ -1,5 +1,5 @@
 require "spec_helper"
 
-describe Lita::Handlers::HipchatExtensions::Timezone, lita: true do
+describe Lita::Handlers::HipchatExtensions::Timezone, lita_handler: true do
 
 end

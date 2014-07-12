@@ -10,23 +10,26 @@ module Lita
           def name
             "hipchat-extensions"
           end
+        end
+
+        # Instance Methods
 
           # @return [String] the auth token for accessing Hipchat's API
           def token
             config.token
           end
-        end
-
-        # Instance Methods
-
-        # @see Base.token
-        def token
-          self.class.token
-        end
 
         # @return [Hipchat] the hipchat client used to make calls to the API
         def client
           @client ||= ::Hipchat.new(token)
+        end
+
+        def fetch_users
+          @users ||= client.users
+        end
+
+        def fetch_user(id)
+          client.user(id)
         end
 
       end # /Base
