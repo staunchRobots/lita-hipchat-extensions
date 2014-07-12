@@ -6,15 +6,15 @@ module Lita
         on :connected,   :sync
         on :synchronize, :sync_user
 
-        route /^hc\s+show\s+(@\w+)$/, :show, command: true
+        route /^hc\s+show\s+(@\w+)/, :show, command: true
 
         # TODO: Document me
         def show(response)
           binding.pry
-          mention_name = response.args.first.gsub "@", ""
+          mention_name = response.args[1].gsub "@", ""
           response.reply t("fetcher.show.usage") and return unless mention_name
           user         = Lita::User.fuzzy_find mention_name
-          response.reply user(user.metadata["id"])
+          response.reply user.metadata.inspect
         end
 
         # Discovers and synchronizes additional Hipchat info for each user
