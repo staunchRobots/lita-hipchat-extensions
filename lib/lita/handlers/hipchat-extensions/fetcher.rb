@@ -3,42 +3,40 @@ module Lita
     class HipchatExtensions < Handler
       # Fetches and persists info from the Hipchat API
       class Fetcher < Base
-        on :connected,   :sync
-        on :synchronize, :sync_user
+        # Events
+        on :connected, :synchronize
 
+        # Routes
+
+        # #show
         route /^hc\s+show\s+(@\w+)/, :show, command: true, help: { 
-          "hc show @MentionName" => "Replies with a user's Hipchat API info"
+         t("fetcher.show.help.key") => t("fetcher.show.help.value")
         }
+        route /^hc\s+show\s+help/, :show_help, command: true
 
         route /^hc\s+sync/, :sync, command: true, help: {
-          "hc sync" => "Synchronizes all contacts with the API"
+          t("fetcher.sync.help.key") =>  t("fetcher.sync.help.value")
         }
+
 
         # Shows Hipchat API information about a given user
         def show(response)
           wrapping_errors(response) do
             mention_name = response.args[1].gsub "@", ""
-            response.reply t("fetcher.show.usage") and return unless mention_name
+            response.reply "#{t("fetcher.show.help.key")} : #{t("fetcher.show.help.value")}" and return unless mention_name
             user         = Lita::User.fuzzy_find mention_name
             response.reply user.metadata.inspect
           end
         end
 
         # Discovers and synchronizes additional Hipchat info for each user
-        def sync(payload={})
+        def synchronize(payload={})
           wrapping_errors do
-            fetch_users.each { |json| robot.trigger :synchronize, json }
+            fetch_users.each do |json|
+              # Call .async so we multithread
+              Synchronizer.new(token, json).async.synchronize
+            end
           end
-        end
-
-        # Synchronizes each user complementing Lita::User metadata with API stuff.
-        def sync_user(json)
-          log.info "Checking if #{json["mention_name"]} needs synchronization..."
-          user = Lita::User.fuzzy_find(json["mention_name"])
-          log.info "Synchronizing #{user.name}"
-          json.merge! fetch_user(json["id"])
-          log.debug user.metadata.merge! json
-          log.info  user.save
         end
 
       end

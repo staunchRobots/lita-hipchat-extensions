@@ -1,4 +1,15 @@
 en:
   lita:
+    handlers:
+      hipchat_extensions:
+        fetcher:
+          sync:
+            help:
+              key: "hc sync"
+              value: "Synchronizes all contacts with the Hipchat API"
+          show:
+            help:
+              key: "hc show @MentionName"
+              value: "Fetches user's Hipchat info"
     extensions:
       hipchat_extensions:
