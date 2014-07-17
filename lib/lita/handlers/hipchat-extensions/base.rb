@@ -14,11 +14,23 @@ module Lita
 
         # Instance Methods
 
-          # @return [String] the auth token for accessing Hipchat's API
-          def token
-            config.token
-          end
+        # @return [String] the auth token for accessing Hipchat's API
+        def token
+          config.token
+        end
 
+        # Wraps a block catching errors and logging / replying to the source,
+        # when they happen before re-raising them
+        def wrapping_errors(response=nil, &block)
+          begin
+            yield if block_given?
+          rescue StandardError => e
+            log.error "Oh noes, #{e.message}"
+            e.backtrace.each { |t| e.debug t }
+            response.reply "Oops, #{e.message}" if response
+            raise e
+          end
+        end
         # @return [Hipchat] the hipchat client used to make calls to the API
         def client
           @client ||= ::Hipchat.new(token)

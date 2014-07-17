@@ -10,17 +10,25 @@ module Lita
           "hc show @MentionName" => "Replies with a user's Hipchat API info"
         }
 
+        route /^hc\s+sync/, :sync, command: true, help: {
+          "hc sync" => "Synchronizes all contacts with the API"
+        }
+
         # Shows Hipchat API information about a given user
         def show(response)
-          mention_name = response.args[1].gsub "@", ""
-          response.reply t("fetcher.show.usage") and return unless mention_name
-          user         = Lita::User.fuzzy_find mention_name
-          response.reply user.metadata.inspect
+          wrapping_errors(response) do
+            mention_name = response.args[1].gsub "@", ""
+            response.reply t("fetcher.show.usage") and return unless mention_name
+            user         = Lita::User.fuzzy_find mention_name
+            response.reply user.metadata.inspect
+          end
         end
 
         # Discovers and synchronizes additional Hipchat info for each user
         def sync(payload={})
-          fetch_users.each { |json| robot.trigger :synchronize, json }
+          wrapping_errors do
+            fetch_users.each { |json| robot.trigger :synchronize, json }
+          end
         end
 
         # Synchronizes each user complementing Lita::User metadata with API stuff.
