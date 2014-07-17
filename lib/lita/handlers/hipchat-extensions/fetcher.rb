@@ -6,9 +6,11 @@ module Lita
         on :connected,   :sync
         on :synchronize, :sync_user
 
-        route /^hc\s+show\s+(@\w+)/, :show, command: true
+        route /^hc\s+show\s+(@\w+)/, :show, command: true, help: { 
+          "hc show @MentionName" => "Replies with a user's Hipchat API info"
+        }
 
-        # TODO: Document me
+        # Shows Hipchat API information about a given user
         def show(response)
           mention_name = response.args[1].gsub "@", ""
           response.reply t("fetcher.show.usage") and return unless mention_name
@@ -25,7 +27,6 @@ module Lita
         def sync_user(json)
           log.info "Checking if #{json["mention_name"]} needs synchronization..."
           user = Lita::User.fuzzy_find(json["mention_name"])
-          return if user.metadata.has_key?("timezone")
           log.info "Synchronizing #{user.name}"
           json.merge! fetch_user(json["id"])
           log.debug user.metadata.merge! json
