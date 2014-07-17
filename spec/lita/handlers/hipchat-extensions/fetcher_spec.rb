@@ -12,7 +12,16 @@ describe Lita::Handlers::HipchatExtensions::Fetcher, lita_handler: true do
   end
 
   describe "#sync" do
-    pending
+    let(:users) { [{ "mention_name" => "foo" }] }
+    before do
+      allow(subject).to receive(:fetch_users).and_return(users)
+    end
+    it "triggers synchronize for each item in the fetch_users array" do
+      users.each do |user|
+        expect(robot).to receive(:trigger).with(:synchronize, user)
+        subject.sync
+      end
+    end
   end
 
   describe "#sync_user" do

@@ -17,11 +17,8 @@ module Lita
         end
 
         # Discovers and synchronizes additional Hipchat info for each user
-        def sync(payload)
-          fetch_users.each do |json|
-            name    = json["mention_name"]
-            robot.trigger :synchronize, json
-          end
+        def sync(payload={})
+          fetch_users.each { |json| robot.trigger :synchronize, json }
         end
 
         # Synchronizes each user complementing Lita::User metadata with API stuff.
