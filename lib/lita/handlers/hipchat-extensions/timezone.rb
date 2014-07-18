@@ -3,12 +3,16 @@ module Lita
     class HipchatExtensions < Handler
       # Handles Timezone shenanigans
       class Timezone < Base
+        include RelativeDistances
+
         route /^tz\s+(@\w+)/,      :show, command: true
         route /^tz\s+list/,        :list, command: true
         route /^tz\s+when\s+(.*)/, :when, command: true
+        route /^ls\s+(.*)/,   :last_seen, command: true
 
         # TODO: Document me
         def show(response)
+          return unless enabled?
           mention_name = response.args.first.gsub "@", ""
           response.reply t("timezones.show.usage") and return unless mention_name
           user = Lita::User.fuzzy_find(mention_name)
@@ -17,14 +21,26 @@ module Lita
 
         # TODO: Document me
         def when(response)
+          return unless enabled?
           time = response.args[1]
-          response.reply ("timezones.whenis.usage") and return unless time
+          response.reply ("timezone.when.usage") and return unless time
           Time.zone    = current_timezone(response)
           current_time = time == "now" ? Time.zone.now : Time.zone.parse(time)
           user_timezones.each do |tz|
             converted_time = current_time.in_time_zone(ActiveSupport::TimeZone[tz])
             response.reply "#{tz}: #{format_time(converted_time)}"
           end
+        end
+
+        # Responds with a human friendly translation on how long ago this user 
+        # was last active
+        def last_seen(response)
+          return unless enabled?
+          name = extract_name(response.args[0])
+          response.reply t("timezones.last_seen.usage") and return unless name
+          # Get the latest info
+          ago  = time_ago_in_words(Time.now, Time.at(last_active(name)) )
+          response.reply "#{name} was last seen #{ago} ago."
         end
 
         # TODO: Document me
@@ -40,6 +56,12 @@ module Lita
 
         def current_timezone(response)
           fetch_timezone(response.user.mention_name)
+        end
+
+        def last_active(mention_name)
+          id = Lita::User.fuzzy_find(mention_name).metadata["id"]
+          return nil unless id
+          client.user(id)["last_active"].to_i
         end
 
         def fetch_timezone(mention_name)
